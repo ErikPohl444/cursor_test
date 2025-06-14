@@ -32,44 +32,9 @@ npm run dev
 npm run consumer
 ```
 
-## API Usage
+## API Documentation
 
-### Get All Users
-
-```bash
-curl http://localhost:3000/users
-```
-
-Expected response:
-```json
-[
-  {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john.doe@example.com",
-    "created_at": "2024-01-20T12:34:56.789Z"
-  }
-]
-```
-
-### Create a User
-
-```bash
-curl -X POST http://localhost:3000/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "email": "john.doe@example.com"
-  }'
-```
-
-Expected response:
-```json
-{
-  "message": "User created successfully",
-  "userId": 1
-}
-```
+For detailed API documentation, please see [User API Documentation](docs/user_api.md).
 
 ## Testing
 
@@ -159,6 +124,8 @@ Created at: 2024-01-20T12:34:56.789Z
   - `kafka.test.js` - Kafka operations tests
   - `consumers/` - Consumer tests
     - `userConsumer.test.js` - User consumer tests
+- `docs/` - Documentation directory
+  - `user_api.md` - User API documentation
 - `package.json` - Project configuration and dependencies
 - `.gitignore` - Git ignore rules
 - `docker-compose.yml` - Docker configuration for Kafka
@@ -167,7 +134,7 @@ Created at: 2024-01-20T12:34:56.789Z
 
 If you encounter connection issues with Kafka:
 
-1. Check if containers are running:
+1. Check if Kafka and Zookeeper are running:
 ```bash
 docker-compose ps
 ```
@@ -182,7 +149,7 @@ docker-compose logs kafka
 docker-compose logs zookeeper
 ```
 
-4. Restart the containers if needed:
+4. Restart the services:
 ```bash
-docker-compose down && docker-compose up -d
+docker-compose restart
 ``` 
