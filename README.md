@@ -34,6 +34,24 @@ npm run consumer
 
 ## API Usage
 
+### Get All Users
+
+```bash
+curl http://localhost:3000/users
+```
+
+Expected response:
+```json
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "created_at": "2024-01-20T12:34:56.789Z"
+  }
+]
+```
+
 ### Create a User
 
 ```bash
