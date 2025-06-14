@@ -32,42 +32,111 @@ npm run dev
 npm run consumer
 ```
 
-## API Usage
+## API Documentation
 
-### Get All Users
+For detailed API documentation, please see [User API Documentation](docs/user_api.md).
 
-```bash
-curl http://localhost:3000/users
-```
+### Error Responses
 
-Expected response:
+If an API version is not found, you'll receive a 404 response:
+
 ```json
-[
-  {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john.doe@example.com",
-    "created_at": "2024-01-20T12:34:56.789Z"
-  }
-]
+{
+  "error": "API version 2.0 not found"
+}
 ```
 
-### Create a User
+### Authentication
+
+The API uses JWT (JSON Web Tokens) for authentication. Most endpoints require a valid JWT token in the `Authorization` header.
+
+#### Register a New User
 
 ```bash
-curl -X POST http://localhost:3000/users \
+curl -X POST http://localhost:3000/api/v1.0/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "John Doe",
-    "email": "john.doe@example.com"
+    "email": "john.doe@example.com",
+    "password": "securepassword123"
   }'
 ```
 
 Expected response:
 ```json
 {
-  "message": "User created successfully",
+  "message": "User registered successfully",
   "userId": 1
+}
+```
+
+#### Login
+
+```bash
+curl -X POST http://localhost:3000/api/v1.0/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+Expected response:
+```json
+{
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+  }
+}
+```
+
+#### Using the JWT Token
+
+To access protected endpoints, include the JWT token in the `Authorization` header:
+
+```bash
+curl -X GET http://localhost:3000/api/v1.0/users \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### Protected Endpoints
+
+The following endpoints require authentication:
+
+- `GET /api/v1.0/users` - Get all users
+- `POST /api/v1.0/users` - Create a new user
+
+### Public Endpoints
+
+The following endpoints are public and don't require authentication:
+
+- `GET /api/v1.0/health` - Health check
+- `POST /api/v1.0/auth/register` - Register a new user
+- `POST /api/v1.0/auth/login` - Login
+
+### Error Responses
+
+Authentication errors:
+
+```json
+{
+  "error": "Authentication token required"
+}
+```
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+```json
+{
+  "error": "Invalid email or password"
 }
 ```
 
@@ -159,6 +228,8 @@ Created at: 2024-01-20T12:34:56.789Z
   - `kafka.test.js` - Kafka operations tests
   - `consumers/` - Consumer tests
     - `userConsumer.test.js` - User consumer tests
+- `docs/` - Documentation directory
+  - `user_api.md` - User API documentation
 - `package.json` - Project configuration and dependencies
 - `.gitignore` - Git ignore rules
 - `docker-compose.yml` - Docker configuration for Kafka
@@ -167,7 +238,7 @@ Created at: 2024-01-20T12:34:56.789Z
 
 If you encounter connection issues with Kafka:
 
-1. Check if containers are running:
+1. Check if Kafka and Zookeeper are running:
 ```bash
 docker-compose ps
 ```
@@ -182,7 +253,7 @@ docker-compose logs kafka
 docker-compose logs zookeeper
 ```
 
-4. Restart the containers if needed:
+4. Restart the services:
 ```bash
-docker-compose down && docker-compose up -d
+docker-compose restart
 ``` 
