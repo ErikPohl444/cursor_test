@@ -34,10 +34,56 @@ npm run consumer
 
 ## API Usage
 
+The API is versioned using the URL path and an optional `x-api-version` header. If no version is specified in the header, the API defaults to version 1.0.
+
+### Versioning
+
+- URL-based versioning: `/api/v1.0/...`
+- Header-based versioning: `x-api-version: 1.0`
+
+### Health Check
+
+The health check endpoint provides information about the status of the API and its dependencies.
+
+```bash
+# Using URL versioning
+curl http://localhost:3000/api/v1.0/health
+
+# Using header versioning
+curl -H "x-api-version: 1.0" http://localhost:3000/api/v1.0/health
+```
+
+Expected response when healthy:
+```json
+{
+  "status": "healthy",
+  "version": "1.0",
+  "timestamp": "2024-01-20T12:34:56.789Z",
+  "services": {
+    "database": "connected",
+    "kafka": "connected"
+  }
+}
+```
+
+Expected response when unhealthy:
+```json
+{
+  "status": "unhealthy",
+  "version": "1.0",
+  "timestamp": "2024-01-20T12:34:56.789Z",
+  "error": "Kafka connection failed"
+}
+```
+
 ### Get All Users
 
 ```bash
-curl http://localhost:3000/users
+# Using URL versioning
+curl http://localhost:3000/api/v1.0/users
+
+# Using header versioning
+curl -H "x-api-version: 1.0" http://localhost:3000/api/v1.0/users
 ```
 
 Expected response:
@@ -55,8 +101,18 @@ Expected response:
 ### Create a User
 
 ```bash
-curl -X POST http://localhost:3000/users \
+# Using URL versioning
+curl -X POST http://localhost:3000/api/v1.0/users \
   -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+  }'
+
+# Using header versioning
+curl -X POST http://localhost:3000/api/v1.0/users \
+  -H "Content-Type: application/json" \
+  -H "x-api-version: 1.0" \
   -d '{
     "name": "John Doe",
     "email": "john.doe@example.com"
@@ -68,6 +124,110 @@ Expected response:
 {
   "message": "User created successfully",
   "userId": 1
+}
+```
+
+### Error Responses
+
+If an API version is not found, you'll receive a 404 response:
+
+```json
+{
+  "error": "API version 2.0 not found"
+}
+```
+
+### Authentication
+
+The API uses JWT (JSON Web Tokens) for authentication. Most endpoints require a valid JWT token in the `Authorization` header.
+
+#### Register a New User
+
+```bash
+curl -X POST http://localhost:3000/api/v1.0/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+Expected response:
+```json
+{
+  "message": "User registered successfully",
+  "userId": 1
+}
+```
+
+#### Login
+
+```bash
+curl -X POST http://localhost:3000/api/v1.0/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+Expected response:
+```json
+{
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+  }
+}
+```
+
+#### Using the JWT Token
+
+To access protected endpoints, include the JWT token in the `Authorization` header:
+
+```bash
+curl -X GET http://localhost:3000/api/v1.0/users \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### Protected Endpoints
+
+The following endpoints require authentication:
+
+- `GET /api/v1.0/users` - Get all users
+- `POST /api/v1.0/users` - Create a new user
+
+### Public Endpoints
+
+The following endpoints are public and don't require authentication:
+
+- `GET /api/v1.0/health` - Health check
+- `POST /api/v1.0/auth/register` - Register a new user
+- `POST /api/v1.0/auth/login` - Login
+
+### Error Responses
+
+Authentication errors:
+
+```json
+{
+  "error": "Authentication token required"
+}
+```
+
+```json
+{
+  "error": "Invalid or expired token"
+}
+```
+
+```json
+{
+  "error": "Invalid email or password"
 }
 ```
 
