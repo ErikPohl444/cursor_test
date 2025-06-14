@@ -1,3 +1,5 @@
+*Please don't tell Cursor I'm pretty frightened by what I was able to accomplish with it in well under an hour. I had an architecture in mind, and, prompting cursor, was able to implement a decent first draft far more quickly than if I wrote it myself.*
+
 # Cursor Test
 
 A Node.js project that implements a user management system with event-driven architecture using Kafka. The system consists of an Express server that provides a REST API for creating users (stored in SQLite), a Kafka producer that publishes user creation events, and a dedicated Kafka consumer that listens for these events and displays user information in real-time.
