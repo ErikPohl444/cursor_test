@@ -152,4 +152,8 @@ docker-compose logs zookeeper
 4. Restart the services:
 ```bash
 docker-compose restart
-``` 
+```
+
+## References
+
+For detailed technical references and documentation links, please see [Technical References](docs/references.md). 
