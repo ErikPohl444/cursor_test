@@ -1,5 +1,22 @@
 # User API Documentation
 
+## Interactive API Documentation
+
+The API includes interactive Swagger documentation that can be accessed at `http://localhost:3000/api-docs` when the server is running. This documentation provides:
+
+- Interactive testing interface for all endpoints
+- Detailed request/response schemas
+- Authentication requirements
+- Example requests and responses
+- Real-time API testing capabilities
+
+The Swagger UI allows you to:
+1. Browse all available endpoints
+2. Test API calls directly from the browser
+3. View detailed schema definitions
+4. Understand authentication flows
+5. See example request/response formats
+
 ## Get All Users
 
 ```bash
