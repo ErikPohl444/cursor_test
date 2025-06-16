@@ -1,13 +1,23 @@
 const express = require('express');
+const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
+const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
+const healthRoutes = require('./routes/healthRoutes');
 const db = require('./db');
 const kafka = require('./kafka');
 const { authenticateToken, generateToken } = require('./middleware/auth');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON bodies
+// Middleware
+app.use(cors());
 app.use(express.json());
+
+// Swagger documentation route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // API versioning middleware
 app.use((req, res, next) => {
@@ -216,6 +226,11 @@ v1Router.get('/users', authenticateToken, (req, res) => {
 // Mount v1.0 routes
 app.use('/api/v1.0', v1Router);
 
+// Routes
+app.use('/api/v1.0/users', userRoutes);
+app.use('/api/v1.0/auth', authRoutes);
+app.use('/api/v1.0/health', healthRoutes);
+
 // Version not found handler
 app.use((req, res, next) => {
     if (req.path.startsWith('/api/')) {
@@ -226,10 +241,17 @@ app.use((req, res, next) => {
     next();
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
 // Start the server
-app.listen(port, async () => {
-    console.log(`Server is running on http://localhost:${port}`);
+app.listen(PORT, async () => {
+    console.log(`Server is running on port ${PORT}`);
     await initializeKafka();
+    console.log(`API Documentation available at http://localhost:${PORT}/api-docs`);
 });
 
 // Initialize Kafka
